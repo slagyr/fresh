@@ -15,6 +15,15 @@ of the rest for you.  It saves tons of time when used during development to:
 * reload routes without restarting the server
 * etc...
 
+
+## Installation
+
+With Leiningen:
+
+    :dependencies [[fresh "1.0.1"]]
+    ; or
+    :dev-dependencies [[fresh "1.0.1"]]
+
 ## Usage
 
 The primary function is `freshener`.
