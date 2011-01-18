@@ -7,7 +7,7 @@ Clojure's dynamic nature allows you to add definitions or even change existing d
 It's brilliant and powerful.  Yet, to do so you typically have to run in the REPL and it can become a tedious task
 to reload files with every change you make, not to mention the dependencies of changes you make.
 
-Fresh simplifies it all.  The source code was extracted from [Speclj's][https://github.com/slagyr/speclj] vigilant runner
+Fresh simplifies it all.  The source code was extracted from [Speclj's](https://github.com/slagyr/speclj) vigilant runner
 (autotest) because of it's usefulness.  Simply tell Fresh which source code you want to keep fresh and it'll take care
 of the rest for you.
 
