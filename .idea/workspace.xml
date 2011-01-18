@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="03642ea4-a265-4aa6-855d-576f3c2ddd52" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/fresh/core.clj" afterPath="$PROJECT_DIR$/src/fresh/core.clj" />
     </list>
     <ignored path="fresh.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -82,7 +83,7 @@
       <file leaf-file-name="README.md" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="0" selection-start="929" selection-end="929" vertical-scroll-proportion="0.4608295">
+            <state line="34" column="6" selection-start="1102" selection-end="1885" vertical-scroll-proportion="0.516129">
               <folding />
             </state>
           </provider>
@@ -100,7 +101,7 @@
       <file leaf-file-name="core.clj" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="51" selection-start="800" selection-end="800" vertical-scroll-proportion="0.0">
+            <state line="199" column="24" selection-start="7801" selection-end="7801" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -144,10 +145,10 @@
         <option value="$PROJECT_DIR$/example/one.clj" />
         <option value="$PROJECT_DIR$/example/two.clj" />
         <option value="$PROJECT_DIR$/example/console.clj" />
-        <option value="$PROJECT_DIR$/src/fresh/core.clj" />
         <option value="$PROJECT_DIR$/example/timed.clj" />
         <option value="$PROJECT_DIR$/project.clj" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/src/fresh/core.clj" />
       </list>
     </option>
   </component>
@@ -511,13 +512,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="51" selection-start="800" selection-end="800" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/console.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state line="30" column="2" selection-start="664" selection-end="664" vertical-scroll-proportion="0.0">
@@ -539,9 +533,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="199" column="24" selection-start="7801" selection-end="7801" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="929" selection-end="929" vertical-scroll-proportion="0.4608295">
+        <state line="34" column="6" selection-start="1102" selection-end="1885" vertical-scroll-proportion="0.516129">
           <folding />
         </state>
       </provider>

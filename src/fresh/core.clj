@@ -195,10 +195,10 @@
 the freshness of all files provided by the provider function.
 The provider must be a no-arg function that returns a seq of java.io.File
 objects.  If any of the files have been modified, they (and all
-thier dependent files), will be reloaded. New files will be loaded and
+their dependent files), will be reloaded. New files will be loaded and
 tracked.  Deleted files will be unloaded along with any dependant files
 that are no longer referenced. The freshener function returns a report map
-of seqs containings File objects: {:new :modified :deleted :reloaded}.
+of seqs containing File objects: {:new :modified :deleted :reloaded}.
 The optional auditor function is called, passing in the report map,
 before the state of the runtime has been modified.  Only when the auditor
 returns a truthy value will the runtime be modified."
