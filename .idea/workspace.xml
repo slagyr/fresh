@@ -80,7 +80,7 @@
       <file leaf-file-name="core.clj" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="80" selection-start="288" selection-end="288" vertical-scroll-proportion="0.1843318">
+            <state line="201" column="52" selection-start="8042" selection-end="8042" vertical-scroll-proportion="0.8156682">
               <folding />
             </state>
           </provider>
@@ -407,27 +407,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sample_src/sample/b/one.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sample_src/sample/a/one.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sample_src/sample/core.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/LICENSE">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="18" selection-start="18" selection-end="18" vertical-scroll-proportion="0.0">
@@ -444,7 +423,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="80" selection-start="288" selection-end="288" vertical-scroll-proportion="0.1843318">
+        <state line="201" column="52" selection-start="8042" selection-end="8042" vertical-scroll-proportion="0.8156682">
           <folding />
         </state>
       </provider>
