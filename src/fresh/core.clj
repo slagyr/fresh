@@ -1,25 +1,44 @@
 (ns fresh.core
   (:use
     [clojure.java.io :only (file)])
+  (:require
+    [clojure.set :as set])
   (:import
     [java.io PushbackReader FileReader File]))
 
+(def clj-file-regex #".*\.clj")
+(defn clj-files-in
+  "Returns a seq of all clojure source files contained in the given directories."
+  [& dirs]
+  (let [files (reduce #(into %1 (file-seq (file %2))) [] dirs)]
+    (filter #(re-matches clj-file-regex (.getName %)) files)))
+
 ;; Resolving ns names ---------------------------------------------------------------------------------------------------
 ;
-(defn ns-to-filename [ns]
+(defn ns-to-filename
+  "Converts the namespace name into a relative path for the corresponding clojure src file."
+  [ns]
   (str (apply str (replace {\. \/ \- \_} (name ns))) ".clj"))
 
-(defn ns-to-file [ns]
+(defn ns-to-file
+  "Returns a java.io.File corresponding to the clojure src file for the
+  given namespace.  nil is returned if the file is not found in the classpath
+  or if the file is not a raw text file."
+  [ns]
   (let [relative-filename (ns-to-filename ns)
         url (.getResource (clojure.lang.RT/baseLoader) relative-filename)]
     (if (and url (= "file" (.getProtocol url)))
       (file (.getFile url))
       nil)))
 
-(defn ns-form? [form]
+(defn ns-form?
+  "Returns true if the given form is a namespace form."
+  [form]
   (and (list? form) (= 'ns (first form))))
 
-(defn read-ns-form [file]
+(defn read-ns-form
+  "Returns the namespace form on the specified clojure src file, nil if none is found."
+  [file]
   (try
     (let [reader (PushbackReader. (FileReader. file))]
       (try
@@ -46,19 +65,26 @@
 (defn- depending-names-of-part [args]
   (map #(ns-for-part nil %) (filter (complement keyword?) (rest args))))
 
-(defn depending-ns-names-from [ns-form]
+(defn depending-ns-names-from
+  "Returns a seq of symbols that are the names of the namespaces that the provided
+  namespace form depends on."
+  [ns-form]
   (let [dependency-parts (filter #(and (list? %) (#{:use :require} (first %))) ns-form)
         ns-list (map #(depending-names-of-part %) dependency-parts)]
     (set (flatten ns-list))))
 
-(defn depending-files-from [ns-form]
+(defn depending-files-from
+  "Returns a seq of java.io.File objects that the namespace form depends on."
+  [ns-form]
   (if ns-form
     (let [dependency-names (depending-ns-names-from ns-form)
           dependency-filenames (map #(ns-to-file %) dependency-names)]
       (vec (filter identity dependency-filenames)))
     []))
 
-(defn ns-name-from [ns-form]
+(defn ns-name-from
+  "Returns the name of the namespace form"
+  [ns-form]
   (if ns-form
     (second ns-form)
     nil))
@@ -69,156 +95,109 @@
   Object
   (toString [this] (str "ns: " ns " mod-time: " mod-time " dependencies: " dependencies)))
 
-(defn new-file-tracker [ns mod-time dependencies]
+(defn- new-file-tracker [ns mod-time dependencies]
   (FileTracker. ns mod-time dependencies))
-;
-;(defn- modified? [file tracker]
-;  (> (.lastModified file) (.mod-time tracker)))
-;
-;(declare update-tracking-for-files)
-;(defn- update-tracking-for-file [listing file batch]
-;  (let [tracker (get listing key)
-;        ns-form (read-ns-form file)
-;        no-update-required (not (or (nil? tracker) (modified? file tracker)))]
-;    (if no-update-required
-;      [listing batch]
-;      (let [dependencies (depending-files-of ns-form)
-;            [listing batch] (update-tracking-for-files listing dependencies batch)
-;            ns (ns-of ns-form)
-;            updated-tracker (new-file-tracker ns (.lastModified file) dependencies)]
-;        [(assoc listing file updated-tracker) batch]))))
-;
-;(defn- update-tracking-for-files
-;  ([listing files] (nth (update-tracking-for-files listing files #{}) 0))
-;  ([listing files batch]
-;    (loop [[listing batch] [listing batch] files files]
-;      (if (not (seq files))
-;        [listing batch]
-;        (let [file (first files)]
-;          (if (contains? batch file)
-;            (recur [listing batch] (rest files))
-;            (recur (update-tracking-for-file listing file (conj batch file)) (rest files))))))))
-;
-;; Tracker Dependencies -------------------------------------------------------------------------------------------------
-;
-;(defn- depends-on? [dependency listing dependent]
-;  (some (partial = dependency) (.dependencies (get listing dependent))))
-;
-;(defn- has-dependent? [listing file]
-;  (some #(depends-on? file listing %) (keys listing)))
-;
-;(defn- with-dependency [new-dependents dependents file tracker]
-;  (if (some dependents (.dependencies tracker))
-;    (conj new-dependents file)
-;    new-dependents))
-;
-;(defn dependents-of
-;  ([listing files] (dependents-of listing (set files) #{}))
-;  ([listing files dependents]
-;    (loop [files files dependents dependents]
-;      (let [new-dependents (reduce (fn [new-dependents [file tracker]] (with-dependency new-dependents files file tracker)) #{} listing)]
-;        (if (seq new-dependents)
-;          (recur new-dependents (into dependents new-dependents))
-;          dependents)))))
 
-;; High level -----------------------------------------------------------------------------------------------------------
-;
-;(defn track-files [runner & files]
-;  (swap! (.listing runner) #(update-tracking-for-files % files)))
-;
-;(defn updated-files [runner directories]
-;  (let [observed-files (set (apply clj-files-in directories))
-;        listing @(.listing runner)
-;        tracked-files (set (keys listing))
-;        new-files (difference observed-files tracked-files)
-;        modified-files (filter #(modified? % (get listing %)) tracked-files)]
-;    (concat new-files modified-files)))
-;
-;(defn clean-deleted-files
-;  ([runner] (swap! (.listing runner)
-;    (fn [listing] (clean-deleted-files listing (filter #(not (.exists %)) (keys listing))))))
-;  ([listing files-to-delete]
-;    (if (not (seq files-to-delete))
-;      listing
-;      (let [dependencies (reduce #(into %1 (.dependencies (get listing %2))) [] files-to-delete)
-;            listing (apply dissoc listing files-to-delete)
-;            unused-dependencies (filter #(not (has-dependent? listing %)) dependencies)]
-;        (clean-deleted-files listing unused-dependencies)))))
-;
-;(defn reload-files [runner & files]
-;  (let [listing @(.listing runner)
-;        trackers (vec (filter identity (map listing files)))
-;        nses (vec (filter identity (map #(.ns %) trackers)))]
-;    (if (seq nses)
-;      (do
-;        (doseq [ns nses] (remove-ns ns))
-;        (dosync (alter @#'clojure.core/*loaded-libs* difference (set nses)))
-;        (apply require nses)))))
-;
+(defn- modified? [file tracker]
+  (> (.lastModified file) (.mod-time tracker)))
 
-(defn make-fresh [listing files])
+(declare update-tracking-for-files)
+(defn- update-tracking-for-file [listing file batch]
+  (let [tracker (get listing file)
+        no-update-required (not (or (nil? tracker) (modified? file tracker)))]
+    (if no-update-required
+      [listing batch]
+      (let [ns-form (read-ns-form file)
+            dependencies (depending-files-from ns-form)
+            [listing batch] (update-tracking-for-files listing dependencies batch)
+            ns (ns-name-from ns-form)
+            updated-tracker (new-file-tracker ns (.lastModified file) dependencies)]
+        [(assoc listing file updated-tracker) batch]))))
+
+(defn- update-tracking-for-files
+  ([listing files] (first (update-tracking-for-files listing files #{})))
+  ([listing files batch]
+    (loop [[listing batch] [listing batch] files files]
+      (if (not (seq files))
+        [listing batch]
+        (let [file (first files)]
+          (if (contains? batch file)
+            (recur [listing batch] (rest files))
+            (recur (update-tracking-for-file listing file (conj batch file)) (rest files))))))))
+
+(defn- depends-on? [dependency listing dependent]
+  (some (partial = dependency) (.dependencies (get listing dependent))))
+
+(defn- has-dependent? [listing file]
+  (some #(depends-on? file listing %) (keys listing)))
+
+(defn- with-dependency [new-dependents dependents file tracker]
+  (if (some dependents (.dependencies tracker))
+    (conj new-dependents file)
+    new-dependents))
+
+(defn- dependents-of
+  ([listing files] (dependents-of listing (set files) #{}))
+  ([listing files dependents]
+    (loop [files files dependents dependents]
+      (let [new-dependents (reduce (fn [new-dependents [file tracker]] (with-dependency new-dependents files file tracker)) #{} listing)]
+        (if (seq new-dependents)
+          (recur new-dependents (into dependents new-dependents))
+          dependents)))))
+
+(defn- clean-deleted-files
+  ([listing] (clean-deleted-files listing (filter #(not (.exists %)) (keys listing))))
+  ([listing files-to-delete]
+    (if (not (seq files-to-delete))
+      listing
+      (let [dependencies (reduce #(into %1 (.dependencies (get listing %2))) [] files-to-delete)
+            listing (apply dissoc listing files-to-delete)
+            unused-dependencies (filter #(not (has-dependent? listing %)) dependencies)]
+        (clean-deleted-files listing unused-dependencies)))))
+
+(defn- unload-nses [nses]
+  (doseq [ns nses] (remove-ns ns))
+  (dosync (alter @#'clojure.core/*loaded-libs* set/difference (set nses))))
+
+(defn- load-nses [nses]
+  (apply require nses))
+
+(defn- doto-nses [listing files & actions]
+  (let [trackers (vec (filter identity (map listing files)))
+        nses (vec (filter identity (map #(.ns %) trackers)))]
+    (when (seq nses)
+      (doseq [action actions]
+        (action nses)))))
+
+(defn make-fresh
+  "Does the work of freshener functions."
+  [listing-atom files auditor]
+  (let [listing (clean-deleted-files @listing-atom)
+        tracked-files (set (keys listing))
+        deleted (set/difference (set (keys @listing-atom)) tracked-files)
+        new-tracked-files (set/difference (set files) tracked-files)
+        modified-tracked-files (set (filter #(modified? % (get listing %)) tracked-files))
+        updates (concat new-tracked-files modified-tracked-files)
+        listing (update-tracking-for-files listing updates)
+        new (set/difference (set (keys listing)) tracked-files)
+        files-to-reload (sort (into (dependents-of listing updates) updates))
+        result {:new new :deleted deleted :modified modified-tracked-files :reloaded files-to-reload}]
+    (when (auditor result)
+      (doto-nses @listing-atom deleted unload-nses)
+      (reset! listing-atom listing)
+      (doto-nses listing files-to-reload unload-nses load-nses))
+    result))
 
 (defn freshener
-  "Returns returns a freshner function that, when invoked, will ensure
-  the freshness of all files provided by the provider function.
-  The provider must be a no-arg function that returns a seq of java.io.File
-  objects.  If any of the files have been modified, they (and all
-  thier dependent files), will be reloaded. New files will be loaded and
-  tracked.  Missing files that were previously tracked will be unloaded
-  along with any dependant files that are no longer referenced."
-  [provider]
-  (let [listing (atom {})]
-    (fn [] (make-fresh listing (provider)))))
-
-
-
-;; Main -----------------------------------------------------------------------------------------------------------------
-;
-;(defn- tick [configuration]
-;  (with-bindings configuration
-;    (let [runner (active-runner)
-;          reporter (active-reporter)
-;          start-time (System/nanoTime)]
-;      (clean-deleted-files runner)
-;      (if-let [updates (seq (updated-files runner *specs*))]
-;        (try
-;          (report-message reporter (str endl "----- " (str (java.util.Date.) " -------------------------------------------------------------------")))
-;          (apply track-files runner updates)
-;          (let [listing @(.listing runner)
-;                files-to-reload (into (dependents-of listing updates) updates)
-;                files-to-reload (sort files-to-reload)]
-;            (report-message reporter (str "took " (str-time-since start-time) " to determine which files to reload."))
-;            (report-message reporter "reloading files:")
-;            (doseq [file files-to-reload] (report-message reporter (str "  " (.getCanonicalPath file))))
-;            (apply reload-files runner files-to-reload))
-;          (run-and-report runner reporter)
-;          (catch Exception e (print-stack-trace e *out*))))
-;      (swap! (.results runner) (fn [_] [])))))
-;
-;(deftype VigilantRunner [listing results]
-;  Runner
-;  (run-directories [this directories reporter]
-;    (let [scheduler (ScheduledThreadPoolExecutor. 1)
-;          configuration (config-bindings)
-;          runnable (fn [] (tick configuration))]
-;      (.scheduleWithFixedDelay scheduler runnable 0 500 TimeUnit/MILLISECONDS)
-;      (.awaitTermination scheduler Long/MAX_VALUE TimeUnit/SECONDS)
-;      0))
-;
-;  (submit-description [this description]
-;    (run-description this description (active-reporter)))
-;
-;  (run-description [this description reporter]
-;    (let [run-results (do-description description reporter)]
-;      (swap! results into run-results)))
-;
-;  (run-and-report [this reporter]
-;    (report-runs reporter @results))
-;
-;  Object
-;  (toString [this] (str "listing: " (apply str (interleave (repeat endl) @listing)))))
-;
-;(defn new-vigilant-runner []
-;  (VigilantRunner. (atom {}) (atom [])))
-;
-
+  "Returns a freshener function that, when invoked, will ensure
+the freshness of all files provided by the provider function.
+The provider must be a no-arg function that returns a seq of java.io.File
+objects.  If any of the files have been modified, they (and all
+thier dependent files), will be reloaded. New files will be loaded and
+tracked.  Deleted files will be unloaded along with any dependant files
+that are no longer referenced. The freshener function returns map of seqs
+containings File objects: {:new :modified :deleted :reloaded}"
+  ([provider] (freshener provider (fn [_] true)))
+  ([provider auditor]
+    (let [listing-atom (atom {})]
+      (fn [] (make-fresh listing-atom (provider) auditor)))))
