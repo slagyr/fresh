@@ -62,7 +62,16 @@
       <file leaf-file-name="project.clj" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/project.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="35" selection-start="242" selection-end="242" vertical-scroll-proportion="0.0">
+            <state line="1" column="24" selection-start="50" selection-end="50" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="4" column="7" selection-start="32" selection-end="32" vertical-scroll-proportion="0.07373272">
               <folding />
             </state>
           </provider>
@@ -77,10 +86,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="core.clj" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="core.clj" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="201" column="52" selection-start="8042" selection-end="8042" vertical-scroll-proportion="0.8156682">
+            <state line="201" column="52" selection-start="8042" selection-end="8042" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -96,10 +105,11 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/project.clj" />
         <option value="$PROJECT_DIR$/LICENSE" />
         <option value="$PROJECT_DIR$/spec/fresh/core_spec.clj" />
         <option value="$PROJECT_DIR$/src/fresh/core.clj" />
+        <option value="$PROJECT_DIR$/project.clj" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -400,13 +410,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/project.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="35" selection-start="242" selection-end="242" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/LICENSE">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="18" selection-start="18" selection-end="18" vertical-scroll-proportion="0.0">
@@ -423,7 +426,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/fresh/core.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="201" column="52" selection-start="8042" selection-end="8042" vertical-scroll-proportion="0.8156682">
+        <state line="201" column="52" selection-start="8042" selection-end="8042" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project.clj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="24" selection-start="50" selection-end="50" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="7" selection-start="32" selection-end="32" vertical-scroll-proportion="0.07373272">
           <folding />
         </state>
       </provider>
