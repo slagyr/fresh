@@ -9,7 +9,11 @@ to reload files with every change you make, not to mention the dependencies of c
 
 Fresh simplifies it all.  The source code was extracted from [Speclj's](https://github.com/slagyr/speclj) vigilant runner
 (autotest) because of it's usefulness.  Simply tell Fresh which source code you want to keep fresh and it'll take care
-of the rest for you.
+of the rest for you.  It saves tons of time when used during development to:
+
+* rerun tests without loading the JVM
+* reload routes without restarting the server
+* etc...
 
 ## Usage
 
