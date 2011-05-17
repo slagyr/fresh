@@ -88,6 +88,12 @@
 
     (before (establish-sample-files))
 
+    (it "should not include hidden files as clj files"
+
+      (let [hidden-file (write-file "sample/.hidden.clj" "I'm a hidden file!")
+            files (clj-files-in sample-dir)]
+        (should= false (contains? (set (map #(.getName %) files)) ".hidden.clj"))))
+
     (it "finds src files from ns name"
       (should= (sample-file "sample/core.clj") (ns-to-file "sample.core"))
       (should= (sample-file "sample/a/one.clj") (ns-to-file "sample.a.one")))

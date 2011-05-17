@@ -12,6 +12,7 @@
   [& dirs]
   (let [dirs (map #(.getCanonicalFile %) dirs)
         files (reduce #(into %1 (file-seq (file %2))) [] dirs)
+        files (remove #(.isHidden %) files)
         clj-files (filter #(re-matches clj-file-regex (.getName %)) files)]
     clj-files))
 
