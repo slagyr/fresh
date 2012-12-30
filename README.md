@@ -20,16 +20,19 @@ of the rest for you.  It saves tons of time when used during development to:
 
 With Leiningen:
 
-    :dependencies [[fresh "1.0.1"]]
-    ; or
-    :dev-dependencies [[fresh "1.0.1"]]
+```clojure
+:dependencies [[fresh "1.0.1"]]
+; or
+:dev-dependencies [[fresh "1.0.1"]]
+```
 
 ## Usage
 
 The primary function is `freshener`.
 
-    user=> (doc freshener)
-    -------------------------
+```clojure
+user=> (doc freshener)
+```
     fresh.core/freshener
     ([provider] [provider auditor])
       Returns a freshener function that, when invoked, will ensure
@@ -51,33 +54,37 @@ The primary function is `freshener`.
 Below is a script that will reload all the Clojure source files in the src and spec directories.  It sits in an infinite
 loop on the console waiting for you to press Enter.  Each time you press Enter, it prints a report and reloads. Simple!
 
-    (ns console
-      (:use
-        [fresh.core :only (clj-files-in freshener)]
-        [clojure.java.io :only (file)]))
+```clojure
+(ns console
+  (:use
+    [fresh.core :only (clj-files-in freshener)]
+    [clojure.java.io :only (file)]))
 
-    (defn files-to-keep-fresh []
-      (clj-files-in (file "src") (file "spec")))
+(defn files-to-keep-fresh []
+  (clj-files-in (file "src") (file "spec")))
 
-    (defn report-refresh [report]
-      (println "Refreshing...")
-      (println "(:new report):      " (:new report))
-      (println "(:modified report): " (:modified report))
-      (println "(:deleted report):  " (:deleted report))
-      (println "(:reloaded report): " (:reloaded report))
-      (println "")
-      true)
+(defn report-refresh [report]
+  (println "Refreshing...")
+  (println "(:new report):      " (:new report))
+  (println "(:modified report): " (:modified report))
+  (println "(:deleted report):  " (:deleted report))
+  (println "(:reloaded report): " (:reloaded report))
+  (println "")
+  true)
 
-    (def refresh-src (freshener files-to-keep-fresh report-refresh))
+(def refresh-src (freshener files-to-keep-fresh report-refresh))
 
-    (loop [key nil]
-      (refresh-src)
-      (println "Press any RETURN to reload, CTR-C to quit.")
-      (recur (.read System/in)))
+(loop [key nil]
+  (refresh-src)
+  (println "Press any RETURN to reload, CTR-C to quit.")
+  (recur (.read System/in)))
+```
 
 Assuming you have the Fresh source code checked out on your filesystem you can execute this command like so:
 
-    $ java -cp src:spec:lib/clojure-1.2.0.jar:lib/dev/speclj-1.2.0.jar:path/to/fresh/src clojure.main path/to/fresh/example/console.clj
+```bash
+$ java -cp src:spec:lib/clojure-1.2.0.jar:lib/dev/speclj-1.2.0.jar:path/to/fresh/src clojure.main path/to/fresh/example/console.clj
+```
 
 ### Example #2
 
@@ -85,32 +92,36 @@ This example show two new techniques.  First notice how it produces a list of al
 loaded in the runtime.  Second, it uses the `ScheduledThreadPoolExecutor` to refresh every second.  Reloaded files
 are printed.
 
-    (ns timed
-      (:use
-        [fresh.core :only (ns-to-file freshener)])
-      (:import
-        [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
+```clojure
+(ns timed
+  (:use
+    [fresh.core :only (ns-to-file freshener)])
+  (:import
+    [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
 
-    (defn files-to-keep-fresh []
-      (filter identity (map #(ns-to-file (.name %)) (all-ns))))
+(defn files-to-keep-fresh []
+  (filter identity (map #(ns-to-file (.name %)) (all-ns))))
 
-    (defn report-refresh [report]
-      (when-let [reloaded (seq (:reloaded report))]
-        (println "Refreshing...")
-        (doseq [file reloaded] (println file))
-        (println ""))
-      true)
+(defn report-refresh [report]
+  (when-let [reloaded (seq (:reloaded report))]
+    (println "Refreshing...")
+    (doseq [file reloaded] (println file))
+    (println ""))
+  true)
 
-    (def refresh! (freshener files-to-keep-fresh report-refresh))
-    (refresh!)
-    (def scheduler (ScheduledThreadPoolExecutor. 1))
-    (.scheduleWithFixedDelay scheduler refresh! 0 1000 TimeUnit/MILLISECONDS)
-    (.awaitTermination scheduler Long/MAX_VALUE TimeUnit/SECONDS)
+(def refresh! (freshener files-to-keep-fresh report-refresh))
+(refresh!)
+(def scheduler (ScheduledThreadPoolExecutor. 1))
+(.scheduleWithFixedDelay scheduler refresh! 0 1000 TimeUnit/MILLISECONDS)
+(.awaitTermination scheduler Long/MAX_VALUE TimeUnit/SECONDS)
+```
 
-Now typically, you might include similar code in your dev environment.  This script, nor Example #1, are very useful
+Now typically, you might include similar code in your dev environment.  Neither this script, nor Example #1, are very useful
 by them selves.  But to make this script interesting we'll have to load some of our code using the -i option.
 
-    java -cp src:spec:lib/clojure-1.2.0.jar:lib/dev/speclj-1.2.0.jar:path/to/fresh/src clojure.main -i spec/your_package/core.clj path/to/fresh/example/timed.clj
+```bash
+$ java -cp src:spec:lib/clojure-1.2.0.jar:lib/dev/speclj-1.2.0.jar:path/to/fresh/src clojure.main -i spec/your_package/core.clj path/to/fresh/example/timed.clj
+```
 
 ## License
 
