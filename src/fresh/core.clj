@@ -158,8 +158,37 @@
             unused-dependencies (filter #(not (has-dependent? listing %)) dependencies)]
         (clean-deleted-files listing unused-dependencies)))))
 
+(defn- filter-vars-in-ns [filter-fn namespace]
+  (binding [*ns* (if (symbol? namespace)
+                   (find-ns namespace)
+                   namespace)]
+    (when *ns*
+      (doall (filter filter-fn
+                     (map var-get
+                          (filter var?
+                                  (map second
+                                       (ns-map *ns*)))))))))
+
+(defn- protocol? [x]
+  (and (instance? clojure.lang.PersistentArrayMap x)
+       (boolean (:on-interface x))))
+
+(defn- multimethod? [x]
+  (instance? clojure.lang.MultiFn x))
+
+(defn- protocols [ns]
+  (filter-vars-in-ns protocol? ns))
+
+(defn- multimethods [ns]
+  (filter-vars-in-ns multimethod? ns))
+
 (defn- unload-nses [nses]
-  (doseq [ns nses] (remove-ns ns))
+  (doseq [ns nses]
+    (let [ps (protocols ns)]
+      (doseq [p ps] (-reset-methods p)))
+    (let [ms (multimethods ns)]
+      (doseq [m ms] (prefer-method m (gensym) (gensym))))
+    (remove-ns ns))
   (dosync (alter @#'clojure.core/*loaded-libs* set/difference (set nses))))
 
 (defn- load-nses [nses]
