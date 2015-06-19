@@ -36,15 +36,17 @@
 (describe "Fresh"
 
   (it "converts ns names into filenames"
-    (should= "foo.clj" (ns-to-filename "foo"))
-    (should= "bar.clj" (ns-to-filename "bar"))
-    (should= "foo/bar.clj" (ns-to-filename "foo.bar"))
-    (should= "foo_bar.clj" (ns-to-filename "foo-bar"))
-    (should= "foo_bar/fizz_bang.clj" (ns-to-filename "foo-bar.fizz-bang")))
+    (should= ["foo.clj" "foo.cljc"] (ns-to-filenames "foo"))
+    (should= ["foo.foo" "foo.bar"] (ns-to-filenames "foo" [".foo" ".bar"]))
+    (should= ["bar.clj" "bar.cljc"] (ns-to-filenames "bar"))
+    (should= ["foo/bar.clj" "foo/bar.cljc"] (ns-to-filenames "foo.bar"))
+    (should= ["foo_bar.clj" "foo_bar.cljc"] (ns-to-filenames "foo-bar"))
+    (should= ["foo_bar/fizz_bang.clj" "foo_bar/fizz_bang.cljc"] (ns-to-filenames "foo-bar.fizz-bang")))
 
   (it "recognizes ns forms"
     (should= true (ns-form? '(ns blah)))
-    (should= true (ns-form? '(ns foo.bar (:use [sample.core]))))
+    (should= true (ns-form? '(ns foo.bar
+                               (:use [sample.core]))))
     (should= false (ns-form? '(not-ns blah)))
     (should= false (ns-form? [])))
 
@@ -53,21 +55,40 @@
     (should= 'foo.bar (ns-name-from '(ns foo.bar))))
 
   (it "pulls dependencies out of ns form"
-    (should= '#{blah} (depending-ns-names-from '(ns foo (:use [blah]))))
-    (should= '#{bar} (depending-ns-names-from '(ns foo (:use [bar]))))
-    (should= '#{fizz} (depending-ns-names-from '(ns foo (:use fizz))))
-    (should= '#{fizz} (depending-ns-names-from '(ns foo (:require fizz))))
-    (should= '#{one two three} (depending-ns-names-from '(ns foo (:use [one] [two] [three]))))
-    (should= '#{one two three} (depending-ns-names-from '(ns foo (:require [one] [two] [three]))))
-    (should= '#{root.one root.two} (depending-ns-names-from '(ns foo (:use [root [one] [two]]))))
-    (should= '#{root.one root.two} (depending-ns-names-from '(ns foo (:require [root [one] [two]]))))
-    (should= '#{one two} (depending-ns-names-from '(ns foo (:use [one :only (foo)] [two :exclude (bar)]))))
-    (should= '#{one two} (depending-ns-names-from '(ns foo (:require [one :as o] [two :as t]))))
-    (should= '#{one.two one.three} (depending-ns-names-from '(ns foo (:use [one [two :only (foo)] [three :exclude (bar)]]))))
-    (should= '#{one.two one.three} (depending-ns-names-from '(ns foo (:require [one [two :as t] [three :as tr]]))))
-    (should= '#{root.one.child.grandchild root.two} (depending-ns-names-from '(ns foo (:use [root [one [child [grandchild]]] [two]]))))
-    (should= '#{fizz} (depending-ns-names-from '(ns foo (:require [fizz] :reload))))
-    (should= '#{fizz} (depending-ns-names-from '(ns foo (:use [fizz] :verbose)))))
+    (should= '#{blah} (depending-ns-names-from '(ns foo
+                                                  (:use [blah]))))
+    (should= '#{bar} (depending-ns-names-from '(ns foo
+                                                 (:use [bar]))))
+    (should= '#{fizz} (depending-ns-names-from '(ns foo
+                                                  (:use fizz))))
+    (should= '#{fizz} (depending-ns-names-from '(ns foo
+                                                  (:require fizz))))
+    (should= '#{one two three} (depending-ns-names-from '(ns foo
+                                                           (:use [one] [two] [three]))))
+    (should= '#{one two three} (depending-ns-names-from '(ns foo
+                                                           (:require [one]
+                                                                     [two]
+                                                                     [three]))))
+    (should= '#{root.one root.two} (depending-ns-names-from '(ns foo
+                                                               (:use [root [one] [two]]))))
+    (should= '#{root.one root.two} (depending-ns-names-from '(ns foo
+                                                               (:require [root [one] [two]]))))
+    (should= '#{one two} (depending-ns-names-from '(ns foo
+                                                     (:use [one :only (foo)] [two :exclude (bar)]))))
+    (should= '#{one two} (depending-ns-names-from '(ns foo
+                                                     (:require [one :as o]
+                                                               [two :as t]))))
+    (should= '#{one.two one.three} (depending-ns-names-from '(ns foo
+                                                               (:use [one [two :only (foo)] [three :exclude (bar)]]))))
+    (should= '#{one.two one.three} (depending-ns-names-from '(ns foo
+                                                               (:require [one [two :as t] [three :as tr]]))))
+    (should= '#{root.one.child.grandchild root.two} (depending-ns-names-from '(ns foo
+                                                                                (:use [root [one [child [grandchild]]] [two]]))))
+    (should= '#{fizz} (depending-ns-names-from '(ns foo
+                                                  (:require [fizz]
+                                                            :reload))))
+    (should= '#{fizz} (depending-ns-names-from '(ns foo
+                                                  (:use [fizz] :verbose)))))
 
   (context "using files"
 
@@ -81,7 +102,9 @@
     (it "pulls read ns form from files"
       (should= '(ns blah) (read-ns-form (write-file "test/one.clj" "(ns blah)")))
       (should= '(ns foo) (read-ns-form (write-file "test/one.clj" "; blah\n(ns foo)")))
-      (should= '(ns blah (:use [foo]) (:require [bar])) (read-ns-form (write-file "test/one.clj" "(ns blah (:use [foo])(:require [bar]))"))))
+      (should= '(ns blah
+                  (:use [foo])
+                  (:require [bar])) (read-ns-form (write-file "test/one.clj" "(ns blah (:use [foo])(:require [bar]))"))))
     )
 
   (context "using sample files"
@@ -104,15 +127,23 @@
         (should-contain "portable.cljx" (set (map #(.getName %) files)))))
 
     (it "finds src files from ns name"
+      (let [cljc-file (write-file "sample/portable.cljc" "I'm portable")]
+        (should= cljc-file (ns-to-file "sample.portable"))))
+
+    (it "finds cljc src files from ns name"
       (should= (sample-file "sample/core.clj") (ns-to-file "sample.core"))
       (should= (sample-file "sample/a/one.clj") (ns-to-file "sample.a.one")))
 
     (it "finds depending files form ns form"
       (should= [] (depending-files-from '(ns foo)))
-      (should= [] (depending-files-from '(ns foo (:use [clojure.set]))))
-      (should= [(sample-file "sample/core.clj")] (depending-files-from '(ns foo (:use [sample.core]))))
+      (should= [] (depending-files-from '(ns foo
+                                           (:use [clojure.set]))))
+      (should= [(sample-file "sample/core.clj")] (depending-files-from '(ns foo
+                                                                          (:use [sample.core]))))
       (should= #{(sample-file "sample/core.clj") (sample-file "sample/a/one.clj")}
-        (set (depending-files-from '(ns foo (:use [sample.core]) (:require [sample.a.one]))))))
+               (set (depending-files-from '(ns foo
+                                             (:use [sample.core])
+                                             (:require [sample.a.one]))))))
 
     (it "first freshening adds files to listing"
       (let [listing (atom {})]

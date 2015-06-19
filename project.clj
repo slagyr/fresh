@@ -1,4 +1,4 @@
-(defproject fresh "1.1.0"
+(defproject fresh "1.1.1"
             :description "A library to keep your clojure runtime 'Fresh'."
             :dependencies [[org.clojure/clojure "1.6.0"]]
             :profiles {:dev {:dependencies [[speclj "3.2.0"]]

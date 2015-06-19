@@ -21,22 +21,26 @@
   [& dirs] (apply find-files-in clj-file-regex dirs))
 
 ;; Resolving ns names ---------------------------------------------------------------------------------------------------
-;
-(defn ns-to-filename
+
+(def clj-extensions [".clj" ".cljc"])
+
+(defn ns-to-filenames
   "Converts the namespace name into a relative path for the corresponding clojure src file."
-  [ns]
-  (str (apply str (replace {\. \/ \- \_} (name ns))) ".clj"))
+  ([ns] (ns-to-filenames ns clj-extensions))
+  ([ns extensions] (map #(str (apply str (replace {\. \/ \- \_} (name ns))) %) extensions)))
 
 (defn ns-to-file
   "Returns a java.io.File corresponding to the clojure src file for the
   given namespace.  nil is returned if the file is not found in the classpath
   or if the file is not a raw text file."
-  [ns]
-  (let [relative-filename (ns-to-filename ns)
-        url (.getResource (clojure.lang.RT/baseLoader) relative-filename)]
-    (if (and url (= "file" (.getProtocol url)))
-      (file (.getFile url))
-      nil)))
+  ([ns] (ns-to-file ns clj-extensions))
+  ([ns extensions]
+   (let [relative-filenames (ns-to-filenames ns extensions)
+         loader (clojure.lang.RT/baseLoader)
+         url (first (filter identity (map #(.getResource loader %) relative-filenames)))]
+     (if (and url (= "file" (.getProtocol url)))
+       (file (.getFile url))
+       nil))))
 
 (defn ns-form?
   "Returns true if the given form is a namespace form."
