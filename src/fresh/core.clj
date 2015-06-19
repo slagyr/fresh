@@ -6,15 +6,19 @@
   (:import
     [java.io PushbackReader FileReader File]))
 
-(def clj-file-regex #".*\.clj")
-(defn clj-files-in
-  "Returns a seq of all clojure source files contained in the given directories."
-  [& dirs]
+(defn find-files-in
+  "Returns a seq of all files (matching the regex) contained in the given directories."
+  [pattern & dirs]
   (let [dirs (map #(.getCanonicalFile %) dirs)
         files (reduce #(into %1 (file-seq (file %2))) [] dirs)
         files (remove #(.isHidden %) files)
-        clj-files (filter #(re-matches clj-file-regex (.getName %)) files)]
+        clj-files (filter #(re-matches pattern (.getName %)) files)]
     clj-files))
+
+(def clj-file-regex #".*\.clj(c)?")
+(defn clj-files-in
+  "Returns a seq of all clojure source files contained in the given directories."
+  [& dirs] (apply find-files-in clj-file-regex dirs))
 
 ;; Resolving ns names ---------------------------------------------------------------------------------------------------
 ;

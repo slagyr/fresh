@@ -89,10 +89,19 @@
     (before (establish-sample-files))
 
     (it "should not include hidden files as clj files"
-
-      (let [hidden-file (write-file "sample/.hidden.clj" "I'm a hidden file!")
-            files (clj-files-in sample-dir)]
+      (write-file "sample/.hidden.clj" "I'm a hidden file!")
+      (let [files (clj-files-in sample-dir)]
         (should= false (contains? (set (map #(.getName %) files)) ".hidden.clj"))))
+
+    (it "finds cljc files by default"
+      (write-file "sample/portable.cljc" "I'm portable")
+      (let [files (clj-files-in sample-dir)]
+        (should-contain "portable.cljc" (set (map #(.getName %) files)))))
+
+    (it "finds specified files by default"
+      (write-file "sample/portable.cljx" "I'm antiquated")
+      (let [files (find-files-in #".*\.cljx" sample-dir)]
+        (should-contain "portable.cljx" (set (map #(.getName %) files)))))
 
     (it "finds src files from ns name"
       (should= (sample-file "sample/core.clj") (ns-to-file "sample.core"))
