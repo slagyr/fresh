@@ -53,10 +53,10 @@
   (try
     (let [reader (PushbackReader. (FileReader. file))]
       (try
-        (loop [form (read reader)]
+        (loop [form (read {:read-cond :allow} reader)]
           (if (ns-form? form)
             form
-            (recur (read reader))))
+            (recur (read {:read-cond :allow} reader))))
         (finally (.close reader))))
     (catch Exception e nil)))
 ;
